@@ -118,7 +118,70 @@ flags.flag2 = 2;
 flags.flag3 = 3;
 ```
 The number specified after the colon (:) represents the number of bits allocated for each member.
+## Aligned and un-aligned data access on structs
 
+* Notice This Line of code and compare it with previous knowledge
+  
+  ```c
+  struct SPerson {
+      unsigned char weghit;
+      unsigned int age;
+  }
+  // Size of this struct = 8 bytes not 5 bytes
+  ```
+
+The reason of this result that because complier aims to fastest execution time so it follows aligned method 
+
+### Aligned access
+
+compiler generates instructions to store variables in natural size boundaries. Let's take the previous code as an example and show why it's 8 bytes not 5 suppose we made an object from this struct and weghit = 0xAA, age = 0xFFFFFFFF
+
+these two variables are stored in memory like this:
+
+| Memory | Value |
+|:------:|:-----:|
+| 0x000  | AA    |
+| 0x001  | 0     |
+| 0x002  | 0     |
+| 0x003  | 0     |
+| 0x004  | FF    |
+| 0x005  | FF    |
+| 0x006  | FF    |
+| 0x007  | FF    |
+
+weghit is stored in the first byte of the memory no problem with that, but when we come to age compiler has two instructions either store byte by byte or store 4 byte at once of course it will choose 4 bytes at once becase it will execute one instruction not four. but it deals with memory in a special way.
+
+
+
+process of putting zeros is called padding
+
+### un-aligned access
+
+the oppesite of aligned access it stores them byte after byte regardless natural size boundary so it will store them like this
+
+| Memory | Value |
+| ------ | ----- |
+| 0x000  | AA    |
+| 0x001  | FF    |
+| 0x002  | FF    |
+| 0x003  | FF    |
+| 0x004  | FF    |
+
+
+
+to compare between aligned and un-aligned access -> aligend access is more effecient in execution time un-aligned access is more effecient from memory size. but it has bigger code size than aligned access
+
+
+
+un-aligned access called packing
+
+to enable packing in structs we use keywords that are dependent on compiler
+
+- #pragma pack(1)
+
+- #pragma pack(push, 1)
+
+- after struct block "\_\_attrbuite\_\_ ((packed))"
 ## Padding
 
 Padding refers to the extra bytes added to a struct or union to ensure proper alignment of its members in memory. The C compiler often adds padding bytes between members to optimize memory access and improve performance.
